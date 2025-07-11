@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPS Sparingskalkulator Norge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #1a1a1a;
+        }
+        .calculator {
+            padding: 40px;
+            background: #ffffff;
+            border-radius: 5px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            width: 2200px;
+            min-height: 1100px;
+            max-width: 90%;
+            display: flex;
+            flex-direction: column;
+        }
+        .flex-container {
+            display: flex;
+            flex-direction: row;
+            gap: 40px;
+            max-height: calc(100vh - 160px);
+            overflow: hidden;
+        }
+        .input-section {
+            flex: 1;
+            max-width: 500px;
+            overflow-y: auto;
+        }
+        .results-section {
+            flex: 2;
+            position: sticky;
+            top: 0;
+            align-self: flex-start;
+        }
+        .message-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .message {
+            background-color: #dbe6f0;
+            padding: 16px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 500;
+            flex: 1;
+            min-width: 200px;
+        }
+        .description {
+            font-size: 1.4rem;
+            color: #333333;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .slider-container {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .slider-label {
+            font-size: 20px;
+            font-weight: 500;
+            color: #000000;
+            margin-bottom: 5px;
+            text-align: left;
+            width: 100%;
+        }
+        .slider-subtext {
+            font-size: 16px;
+            color: #666666;
+            margin-top: 5px;
+            text-align: left;
+            width: 100%;
+        }
+        .slider-input-container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .slider {
+            width: 300px;
+            appearance: none;
+            height: 15px;
+            background: #dbe6f0;
+            outline: none;
+            border-radius: 3px;
+        }
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 35px;
+            height: 35px;
+            background: #2f4a5e;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 0 8px #2f4a5e;
+        }
+        .slider::-moz-range-thumb {
+            width: 35px;
+            height: 35px;
+            background: #2f4a5e;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .value {
+            margin-left: 10px;
+            padding: 10px 10px;
+            background: #dbe6f0;
+            border-radius: 5px;
+            font-size: 24px;
+            color: #000000;
+        }
+        .value input {
+            width: 162px;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-size: 24px;
+            outline: none;
+            color: #000000;
+        }
+        .toggle-button {
+            width: 100%;
+            padding: 15px;
+            background: #2f4a5e;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 20px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .toggle-button:hover {
+            background: #3b5b74;
+        }
+        .toggle-button.active {
+            background: #2a7e4b;
+        }
+        .info-button {
+            width: 100%;
+            padding: 15px;
+            background: #2f4a5e;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .info-button:hover {
+            background: #3b5b74;
+        }
+        .results-table table {
+            table-layout: fixed;
+            width: 100%;
+        }
+        .results-table td {
+            padding: 3px;
+            font-size: 20px;
+            word-break: break-word;
+            min-width: 0;
+            text-align: center;
+        }
+        .results-table th {
+            padding: 5px 7px;
+            font-size: 18px;
+            font-weight: 500;
+            min-width: 0;
+            color: #000000;
+        }
+        .table-scroll {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-bottom: 100px;
+        }
+        .info-content {
+            font-size: 1.2rem;
+            color: #333333;
+            line-height: 1.6;
+        }
+        .info-content h2 {
+            font-size: 1.8rem;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #2f4a5e;
+        }
+        .info-content ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        .info-content li {
+            margin-bottom: 10px;
+        }
+        .calculation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .calculation-table th, .calculation-table td {
+            border: 1px solid #cccccc;
+            padding: 10px;
+            text-align: left;
+            font-size: 1.1rem;
+        }
+        .calculation-table th {
+            background-color: #dbe6f0;
+            font-weight: 500;
+        }
+        .hidden {
+            display: none;
+        }
+        .extra-column {
+            display: none;
+        }
+        .extra-column.show {
+            display: table-cell;
+        }
+        .reinvest-column {
+            display: none;
+        }
+        .reinvest-column.show {
+            display: table-cell;
+        }
+        .retirement-year {
+            font-weight: bold;
+            background-color: #e6f0fa;
+        }
+        .chart-container {
+            margin-top: 20px;
+            height: 400px;
+        }
+        @media (max-width: 768px) {
+            .calculator {
+                padding: 20px;
+                width: 100%;
+                min-height: auto;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+            .flex-container {
+                flex-direction: column;
+                gap: 20px;
+                max-height: none;
+                overflow: visible;
+            }
+            .input-section {
+                max-width: 100%;
+                overflow-y: visible;
+            }
+            .results-section {
+                position: static;
+                width: 100%;
+            }
+            .message-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .message {
+                font-size: 1.2rem;
+                padding: 12px;
+            }
+            .description {
+                font-size: 1.2rem;
+            }
+            .slider {
+                width: 100%;
+                max-width: 260px;
+            }
+            .value input {
+                width: 120px;
+                font-size: 20px;
+            }
+            .slider-label {
+                font-size: 20px;
+            }
+            .slider-subtext {
+                font-size: 14px;
+            }
+            .toggle-button, .info-button {
+                font-size: 18px;
+                padding: 12px;
+            }
+            .results-table th {
+                font-size: 14px;
+                padding: 3px;
+            }
+            .results-table td {
+                font-size: 16px;
+                padding: 2px;
+            }
+            .table-scroll {
+                max-height: 400px;
+                overflow-x: auto;
+            }
+            .results-table table {
+                min-width: 500px;
+            }
+            .info-content {
+                font-size: 1rem;
+            }
+            .info-content h2 {
+                font-size: 1.5rem;
+            }
+            .calculation-table th, .calculation-table td {
+                font-size: 0.9rem;
+                padding: 8px;
+            }
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1 class="text-4xl font-bold text-gray-800 mb-6 text-center">IPS Sparingskalkulator Norge</h1>
+        <div class="flex-container">
+            <!-- Input Section -->
+            <div class="input-section">
+                <div class="description">
+                    Kalkulatoren viser utviklingen av sparing i IPS vs global indexfond (ASK) vs banksparing under norske forhold. Endre parametre for å se forskjellene. IPS er begrenset til maks 15 000 kr årlig innskudd.
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">Nåværende alder</div>
+                    <div class="slider-input-container">
+                        <input type="range" min="18" max="61" value="40" step="1" class="slider" id="currentAge">
+                        <div class="value"><input type="text" id="currentAge-value" value="40" oninput="validateInput(this); updateSlider('currentAge', this)" onblur="updateSlider('currentAge', this)" onchange="updateSlider('currentAge', this)" onkeypress="if(event.key === 'Enter') updateSlider('currentAge', this)"></div>
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">Uttaksalder (min 62)</div>
+                    <div class="slider-input-container">
+                        <input type="range" min="62" max="75" value="62" step="1" class="slider" id="withdrawalAge">
+                        <div class="value"><input type="text" id="withdrawalAge-value" value="62" oninput="validateInput(this); updateSlider('withdrawalAge', this)" onblur="updateSlider('withdrawalAge', this)" onchange="updateSlider('withdrawalAge', this)" onkeypress="if(event.key === 'Enter') updateSlider('withdrawalAge', this)"></div>
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">Årlig sparing (kr, max 15 000 for IPS)</div>
+                    <div class="slider-input-container">
+                        <input type="range" min="0" max="15000" value="15000" step="100" class="slider" id="annualSavings">
+                        <div class="value"><input type="text" id="annualSavings-value" value="15 000" oninput="validateInput(this); updateSlider('annualSavings', this)" onblur="updateSlider('annualSavings', this)" onchange="updateSlider('annualSavings', this)" onkeypress="if(event.key === 'Enter') updateSlider('annualSavings', this)"></div>
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">Forventet avkastning aksjer (%)</div>
+                    <div class="slider-input-container">
+                        <input type="range" min="0" max="20" value="5.5" step="0.1" class="slider" id="returnRate">
+                        <div class="value"><input type="text" id="returnRate-value" value="5,5" oninput="validateInputDecimal(this); updateSliderDecimal('returnRate', this)" onblur="updateSliderDecimal('returnRate', this)" onchange="updateSliderDecimal('returnRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('returnRate', this)"></div>
+                    </div>
+                </div>
+                <div class="slider-container">
+                    <div class="slider-label">Forventet bankrente (%)</div>
+                    <div class="slider-input-container">
+                        <input type="range" min="0" max="10" value="3" step="0.1" class="slider" id="bankRate">
+                        <div class="value"><input type="text" id="bankRate-value" value="3" oninput="validateInputDecimal(this); updateSliderDecimal('bankRate', this)" onblur="updateSliderDecimal('bankRate', this)" onchange="updateSliderDecimal('bankRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('bankRate', this)"></div>
+                    </div>
+                </div>
+                <button onclick="toggleAdvancedSettings()" class="toggle-button">Vis/Skjul avanserte innstillinger</button>
+                <div id="advancedSettings" class="hidden">
+                    <div class="slider-container">
+                        <div class="slider-label">Startår sparing</div>
+                        <div class="slider-input-container">
+                            <input type="range" min="2025" max="2050" value="2025" step="1" class="slider" id="startYear">
+                            <div class="value"><input type="text" id="startYear-value" value="2025" oninput="validateInput(this); updateSlider('startYear', this)" onblur="updateSlider('startYear', this)" onchange="updateSlider('startYear', this)" onkeypress="if(event.key === 'Enter') updateSlider('startYear', this)"></div>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">Inflasjon (%)</div>
+                        <div class="slider-input-container">
+                            <input type="range" min="0" max="10" value="2" step="0.1" class="slider" id="inflationRate">
+                            <div class="value"><input type="text" id="inflationRate-value" value="2" oninput="validateInputDecimal(this); updateSliderDecimal('inflationRate', this)" onblur="updateSliderDecimal('inflationRate', this)" onchange="updateSliderDecimal('inflationRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('inflationRate', this)"></div>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">Skjermingsrente (%)</div>
+                        <div class="slider-input-container">
+                            <input type="range" min="0" max="5" value="2.4" step="0.1" class="slider" id="shieldingRate">
+                            <div class="value"><input type="text" id="shieldingRate-value" value="2,4" oninput="validateInputDecimal(this); updateSliderDecimal('shieldingRate', this)" onblur="updateSliderDecimal('shieldingRate', this)" onchange="updateSliderDecimal('shieldingRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('shieldingRate', this)"></div>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">Formueskatt (%)</div>
+                        <div class="slider-input-container">
+                            <input type="range" min="0" max="5" value="1" step="0.1" class="slider" id="wealthTaxRate">
+                            <div class="value"><input type="text" id="wealthTaxRate-value" value="1" oninput="validateInputDecimal(this); updateSliderDecimal('wealthTaxRate', this)" onblur="updateSliderDecimal('wealthTaxRate', this)" onchange="updateSliderDecimal('wealthTaxRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('wealthTaxRate', this)"></div>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">Skatt på aksjegevinst (%)</div>
+                        <div class="slider-input-container">
+                            <input type="range" min="0" max="50" value="37.84" step="0.01" class="slider" id="stockTaxRate">
+                            <div class="value"><input type="text" id="stockTaxRate-value" value="37,84" oninput="validateInputDecimal(this); updateSliderDecimal('stockTaxRate', this)" onblur="updateSliderDecimal('stockTaxRate', this)" onchange="updateSliderDecimal('stockTaxRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('stockTaxRate', this)"></div>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">Skatt på renteinntekt (%)</div>
+                        <div class="slider-input-container">
+                            <input type="range" min="0" max="50" value="22" step="0.01" class="slider" id="incomeTaxRate">
+                            <div class="value"><input type="text" id="incomeTaxRate-value" value="22" oninput="validateInputDecimal(this); updateSliderDecimal('incomeTaxRate', this)" onblur="updateSliderDecimal('incomeTaxRate', this)" onchange="updateSliderDecimal('incomeTaxRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('incomeTaxRate', this)"></div>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">Skattefradrag IPS (%)</div>
+                        <div class="slider-input-container">
+                            <input type="range" min="0" max="50" value="22" step="0.01" class="slider" id="ipsDeductionRate">
+                            <div class="value"><input type="text" id="ipsDeductionRate-value" value="22" oninput="validateInputDecimal(this); updateSliderDecimal('ipsDeductionRate', this)" onblur="updateSliderDecimal('ipsDeductionRate', this)" onchange="updateSliderDecimal('ipsDeductionRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('ipsDeductionRate', this)"></div>
+                        </div>
+                    </div>
+                    <div class="slider-container">
+                        <div class="slider-label">Verdsettelsesrabatt fond (%)</div>
+                        <div class="slider-input-container">
+                            <input type="range" min="0" max="50" value="20" step="0.1" class="slider" id="fundDiscount">
+                            <div class="value"><input type="text" id="fundDiscount-value" value="20" oninput="validateInputDecimal(this); updateSliderDecimal('fundDiscount', this)" onblur="updateSliderDecimal('fundDiscount', this)" onchange="updateSliderDecimal('fundDiscount', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('fundDiscount', this)"></div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="toggleWealthTax()" class="toggle-button active" id="toggleWealthButton">Deaktiver formueskatt</button>
+                <button onclick="toggleReinvest()" class="toggle-button" id="toggleReinvestButton">Aktiver reinvestering av skattefradrag</button>
+                <button onclick="toggleExtraColumns()" class="toggle-button" id="toggleColumnsButton">Aktiver ekstra kolonner</button>
+            </div>
+            <!-- Results Section -->
+            <div class="results-section">
+                <div id="results-container" class="mt-6">
+                    <button onclick="toggleInfo()" class="info-button" id="infoButton">Vis informasjon om kalkulatoren</button>
+                    <div id="infoSection" class="info-content hidden">
+                        <h2>Om IPS Sparingskalkulator</h2>
+                        <p>Denne kalkulatoren estimerer veksten av sparing i IPS, global indexfond (ASK) og banksparing, med hensyn til norske skatteregler, formueskatt og skjerming. Sparingen er inflasjonsjustert hvis angitt. Ved uttaksalder vises netto verdier etter skatt.</p>
+                        <h2>Fordeler og ulemper med IPS</h2>
+                        <h3>Fordeler:</h3>
+                        <ul>
+                            <li>Skattefradrag på innskudd (22% i 2025, maks 3 300 kr for 15 000 kr innskudd).</li>
+                            <li>Fritak for formueskatt (opptil 0,8% årlig etter rabatt).</li>
+                            <li>Lavere skatt på aksjeavkastning (22% vs 37,84% i fond/ASK).</li>
+                            <li>Potensial for 15–50% høyere sparesaldo etter skatt.</li>
+                        </ul>
+                        <h3>Ulemper:</h3>
+                        <ul>
+                            <li>Midlene er bundet til 62 år, med uttak over minst 10 år til 80 år.</li>
+                            <li>Ingen skjermingsfradrag for aksjer og aksjefond.</li>
+                            <li>Ved opphold på sykehjem kan opptil 85% av uttak kreves til egenbetaling.</li>
+                        </ul>
+                        <h2>Hvordan bruke kalkulatoren</h2>
+                        <ul>
+                            <li><strong>Grunnleggende innstillinger:</strong> Juster alder, årlig sparing, avkastning m.m.</li>
+                            <li><strong>Avanserte innstillinger:</strong> Tilpass skattesatser, inflasjon o.l.</li>
+                            <li><strong>Toggles:</strong> Aktiver formueskatt hvis du har formue, og reinvestering for å simulere at skattefradraget investeres i en ekstra aksjekonto (Reinsvestert IPS skattefradrag) som legges til IPS-netto ved uttak.</li>
+                            <li><strong>Resultater:</strong> Tabell viser årlig utvikling. Meldinger viser netto verdier ved uttaksalder etter skatt, og spart formueskatt hvis aktivert.</li>
+                            <li><strong>Forbehold:</strong> Dette er estimater, ikke fasit. Konsulter skatterådgiver.</li>
+                        </ul>
+                        <h2>Kalkulasjoner forklart</h2>
+                        <p>Nedenfor er en oversikt over hvordan verdiene beregnes:</p>
+                        <table class="calculation-table">
+                            <tr>
+                                <th>Felt</th>
+                                <th>Beskrivelse</th>
+                                <th>Kalkulasjon</th>
+                            </tr>
+                            <tr>
+                                <td>IPS beholdning</td>
+                                <td>Vekst av IPS-sparing.</td>
+                                <td>Beholdning(t) = Beholdning(t-1) × (1 + Avkastning) + Innskudd_IPS<br>Ingen årlig skatt eller formueskatt.</td>
+                            </tr>
+                            <tr>
+                                <td>Fond beholdning</td>
+                                <td>Vekst av fondsparing (ASK).</td>
+                                <td>Beholdning(t) = Beholdning(t-1) × (1 + Avkastning) + Innskudd_fond<br>Skjerming = Basis(t-1) × Skjermingsrente, lagt til basis.<br>Formueskatt(t) = (Beholdning × (1 - Rabatt)) × Formueskatt hvis aktivert.</td>
+                            </tr>
+                            <tr>
+                                <td>Bank beholdning</td>
+                                <td>Vekst av banksparing.</td>
+                                <td>Beholdning(t) = Beholdning(t-1) + Innskudd_bank + (Beholdning(t-1) × Bankrente × (1 - Rentetskatt))<br>Formueskatt(t) = Beholdning × Formueskatt hvis aktivert.</td>
+                            </tr>
+                            <tr>
+                                <td>Reinsvestert IPS skattefradrag</td>
+                                <td>Ekstra fond fra reinvestert fradrag (hvis aktivert).</td>
+                                <td>Lignende fond, men innskudd = Skattefradrag fra IPS-innskudd (Innskudd_IPS × Skattefradrag %).</td>
+                            </tr>
+                            <tr>
+                                <td>Netto ved uttak</td>
+                                <td>Netto etter skatt ved uttaksalder.</td>
+                                <td>IPS: (Beholdning × (1 - 0.22)) + (Reinsvestert IPS skattefradrag netto etter gevinstskatt hvis aktivert)<br>Fond: Beholdning - ((Beholdning - Basis) × Aksjeskatt)<br>Bank: Beholdning (allerede etter skatt).</td>
+                            </tr>
+                            <tr>
+                                <td>Reinvest skattefradrag</td>
+                                <td>Simulerer reinvestering.</td>
+                                <td>Skattefradrag investeres i ekstra fond (Reinsvestert IPS skattefradrag) og legges til IPS-netto.</td>
+                            </tr>
+                        </table>
+                        <h2>Forklaring på reinvestering av skattefradrag</h2>
+                        <p>Når reinvestering er aktivert, beregnes skattefradraget fra IPS-innskuddet (f.eks. 22% av 15 000 kr = 3 300 kr) og investeres i en separat aksjekonto (Reinsvestert IPS skattefradrag). Denne kontoen vokser som en vanlig ASK-konto, med skjerming, mulig formueskatt, og gevinstskatt ved uttak (37,84%). Nettoverdien fra denne kontoen legges til netto IPS-verdi for å vise total fordel, da fradraget er en ekstra besparelse som kan investeres annet sted.</p>
+                        <button onclick="toggleChart()" class="toggle-button" id="chartButton">Vis graf</button>
+                        <div id="chartSection" class="hidden">
+                            <div class="chart-container">
+                                <canvas id="savingsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tableSection">
+                        <div class="message-container">
+                            <div id="ipsNetMessage" class="message"></div>
+                            <div id="fundNetMessage" class="message"></div>
+                            <div id="bankNetMessage" class="message"></div>
+                            <div id="savedWealthMessage" class="message"></div>
+                        </div>
+                        <div class="results-table">
+                            <div class="table-scroll">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead id="resultsTableHead"></thead>
+                                    <tbody id="resultsTable" class="bg-white divide-y divide-gray-200"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let showExtraColumns = false;
+        let showInfo = false;
+        let hasWealth = true;
+        let reinvestDeduction = false;
+        let showChart = false;
+        let chart = null;
+
+        const sliders = {
+            currentAge: document.getElementById('currentAge'),
+            withdrawalAge: document.getElementById('withdrawalAge'),
+            annualSavings: document.getElementById('annualSavings'),
+            returnRate: document.getElementById('returnRate'),
+            bankRate: document.getElementById('bankRate'),
+            inflationRate: document.getElementById('inflationRate'),
+            shieldingRate: document.getElementById('shieldingRate'),
+            wealthTaxRate: document.getElementById('wealthTaxRate'),
+            stockTaxRate: document.getElementById('stockTaxRate'),
+            incomeTaxRate: document.getElementById('incomeTaxRate'),
+            ipsDeductionRate: document.getElementById('ipsDeductionRate'),
+            fundDiscount: document.getElementById('fundDiscount'),
+            startYear: document.getElementById('startYear')
+        };
+        const values = {
+            currentAge: document.getElementById('currentAge-value'),
+            withdrawalAge: document.getElementById('withdrawalAge-value'),
+            annualSavings: document.getElementById('annualSavings-value'),
+            returnRate: document.getElementById('returnRate-value'),
+            bankRate: document.getElementById('bankRate-value'),
+            inflationRate: document.getElementById('inflationRate-value'),
+            shieldingRate: document.getElementById('shieldingRate-value'),
+            wealthTaxRate: document.getElementById('wealthTaxRate-value'),
+            stockTaxRate: document.getElementById('stockTaxRate-value'),
+            incomeTaxRate: document.getElementById('incomeTaxRate-value'),
+            ipsDeductionRate: document.getElementById('ipsDeductionRate-value'),
+            fundDiscount: document.getElementById('fundDiscount-value'),
+            startYear: document.getElementById('startYear-value')
+        };
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func(...args), wait);
+            };
+        }
+
+        const debouncedUpdate = debounce(calculateSavings, 100);
+
+        Object.keys(sliders).forEach(id => {
+            sliders[id].addEventListener('input', () => {
+                updateValue(id);
+                debouncedUpdate();
+            });
+        });
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function parseNumber(str) {
+            return parseFloat(str.replace(/\s/g, '').replace(',', '.')) || 0;
+        }
+
+        function updateValue(id) {
+            const slider = sliders[id];
+            const valueInput = values[id];
+            const value = parseFloat(slider.value);
+            valueInput.value = formatValue(value, id);
+        }
+
+        function updateSlider(id, input) {
+            const slider = sliders[id];
+            let value = parseNumber(input.value);
+            slider.value = Math.max(slider.min, Math.min(value, slider.max));
+            input.value = formatValue(slider.value, id);
+            debouncedUpdate();
+        }
+
+        function updateSliderDecimal(id, input) {
+            const slider = sliders[id];
+            let value = parseNumber(input.value);
+            slider.value = Math.max(slider.min, Math.min(value, slider.max));
+            input.value = formatValue(slider.value, id);
+            debouncedUpdate();
+        }
+
+        function validateInput(input) {
+            input.value = input.value.replace(/[^0-9 ]/g, '');
+        }
+
+        function validateInputDecimal(input) {
+            input.value = input.value.replace(/[^0-9,]/g, '');
+        }
+
+        function formatValue(value, id) {
+            let numValue = Number(value);
+            if (isNaN(numValue)) {
+                return '0';
+            }
+            if (['annualSavings'].includes(id)) {
+                return formatNumber(Math.round(numValue));
+            } else if (['returnRate', 'bankRate', 'inflationRate', 'wealthTaxRate', 'shieldingRate', 'stockTaxRate', 'incomeTaxRate', 'ipsDeductionRate', 'fundDiscount'].includes(id)) {
+                return numValue.toFixed(2).replace('.', ',');
+            }
+            return formatNumber(Math.round(numValue));
+        }
+
+        function toggleAdvancedSettings() {
+            document.getElementById('advancedSettings').classList.toggle('hidden');
+            debouncedUpdate();
+        }
+
+        function toggleExtraColumns() {
+            showExtraColumns = !showExtraColumns;
+            document.querySelectorAll('.extra-column').forEach(col => col.classList.toggle('show', showExtraColumns));
+            document.getElementById('toggleColumnsButton').innerText = showExtraColumns ? 'Deaktiver ekstra kolonner' : 'Aktiver ekstra kolonner';
+            document.getElementById('toggleColumnsButton').classList.toggle('active', showExtraColumns);
+            debouncedUpdate();
+        }
+
+        function toggleWealthTax() {
+            hasWealth = !hasWealth;
+            const toggleButton = document.getElementById('toggleWealthButton');
+            toggleButton.innerText = hasWealth ? 'Deaktiver formueskatt' : 'Aktiver formueskatt';
+            toggleButton.classList.toggle('active', hasWealth);
+            debouncedUpdate();
+        }
+
+        function toggleReinvest() {
+            reinvestDeduction = !reinvestDeduction;
+            const toggleButton = document.getElementById('toggleReinvestButton');
+            toggleButton.innerText = reinvestDeduction ? 'Deaktiver reinvestering av skattefradrag' : 'Aktiver reinvestering av skattefradrag';
+            toggleButton.classList.toggle('active', reinvestDeduction);
+            document.querySelectorAll('.reinvest-column').forEach(col => col.classList.toggle('show', reinvestDeduction));
+            debouncedUpdate();
+        }
+
+        function toggleInfo() {
+            showInfo = !showInfo;
+            document.getElementById('infoSection').classList.toggle('hidden', !showInfo);
+            document.getElementById('tableSection').classList.toggle('hidden', showInfo);
+            document.getElementById('infoButton').innerText = showInfo ? 'Vis resultattabell' : 'Vis informasjon om kalkulatoren';
+        }
+
+        function toggleChart() {
+            showChart = !showChart;
+            document.getElementById('chartSection').classList.toggle('hidden', !showChart);
+            document.getElementById('chartButton').innerText = showChart ? 'Skjul graf' : 'Vis graf';
+            if (showChart && chart) {
+                chart.update();
+            }
+        }
+
+        let yearData = [];
+        let ipsData = [];
+        let fundData = [];
+        let bankData = [];
+        let reinvestData = [];
+
+        function calculateSavings() {
+            const params = {
+                currentAge: parseNumber(values.currentAge.value),
+                withdrawalAge: parseNumber(values.withdrawalAge.value),
+                annualSavings: parseNumber(values.annualSavings.value),
+                returnRate: parseNumber(values.returnRate.value) / 100,
+                bankRate: parseNumber(values.bankRate.value) / 100,
+                inflationRate: parseNumber(values.inflationRate.value) / 100,
+                shieldingRate: parseNumber(values.shieldingRate.value) / 100,
+                wealthTaxRate: parseNumber(values.wealthTaxRate.value) / 100,
+                stockTaxRate: parseNumber(values.stockTaxRate.value) / 100,
+                incomeTaxRate: parseNumber(values.incomeTaxRate.value) / 100,
+                ipsDeductionRate: parseNumber(values.ipsDeductionRate.value) / 100,
+                fundDiscount: parseNumber(values.fundDiscount.value) / 100,
+                startYear: parseNumber(values.startYear.value)
+            };
+
+            const years = params.withdrawalAge - params.currentAge;
+            if (years < 0) return;
+
+            let balanceIPS = 0;
+            let balanceFund = 0;
+            let taxFreeFund = 0;
+            let balanceBank = 0;
+            let balanceReinvest = 0;
+            let taxFreeReinvest = 0;
+            const tableRows = [];
+            let finalIPS = 0, finalFund = 0, finalBank = 0, finalTaxFreeFund = 0;
+            let finalReinvest = 0, finalTaxFreeReinvest = 0;
+            let totalWealthTaxFund = 0;
+
+            yearData = [];
+            ipsData = [];
+            fundData = [];
+            bankData = [];
+            reinvestData = [];
+
+            for (let year = 0; year <= years; year++) {
+                let contribIPS = Math.min(params.annualSavings, 15000);
+                let deduction = Math.round(contribIPS * params.ipsDeductionRate);
+                let contribOther = params.annualSavings;
+
+                // IPS
+                balanceIPS += contribIPS;
+                balanceIPS = Math.round(balanceIPS * (1 + params.returnRate));
+
+                // Fund (ASK)
+                balanceFund += contribOther;
+                taxFreeFund += contribOther;
+                balanceFund = Math.round(balanceFund * (1 + params.returnRate));
+                const shielding = Math.round(taxFreeFund * params.shieldingRate);
+                taxFreeFund += shielding;
+                let wealthTaxFund = 0;
+                if (hasWealth) {
+                    const taxableFund = Math.round(balanceFund * (1 - params.fundDiscount));
+                    wealthTaxFund = Math.round(taxableFund * params.wealthTaxRate);
+                    totalWealthTaxFund += wealthTaxFund;
+                }
+                balanceFund = Math.max(0, balanceFund - wealthTaxFund);
+
+                // Bank
+                balanceBank += contribOther;
+                const interest = Math.round(balanceBank * params.bankRate);
+                const taxInterest = Math.round(interest * params.incomeTaxRate);
+                balanceBank += interest - taxInterest;
+                let wealthTaxBank = 0;
+                if (hasWealth) {
+                    const taxableBank = balanceBank;
+                    wealthTaxBank = Math.round(taxableBank * params.wealthTaxRate);
+                }
+                balanceBank = Math.max(0, balanceBank - wealthTaxBank);
+
+                // Reinsvestert IPS skattefradrag (ekstra fra fradrag)
+                let shieldingReinvest = 0;
+                let wealthTaxReinvest = 0;
+                if (reinvestDeduction) {
+                    balanceReinvest += deduction;
+                    taxFreeReinvest += deduction;
+                    balanceReinvest = Math.round(balanceReinvest * (1 + params.returnRate));
+                    shieldingReinvest = Math.round(taxFreeReinvest * params.shieldingRate);
+                    taxFreeReinvest += shieldingReinvest;
+                    if (hasWealth) {
+                        const taxableReinvest = Math.round(balanceReinvest * (1 - params.fundDiscount));
+                        wealthTaxReinvest = Math.round(taxableReinvest * params.wealthTaxRate);
+                    }
+                    balanceReinvest = Math.max(0, balanceReinvest - wealthTaxReinvest);
+                }
+
+                const isWithdrawalYear = year === years;
+                const rowClass = isWithdrawalYear ? 'retirement-year' : '';
+
+                tableRows.push(`
+                    <tr class="${rowClass}">
+                        <td>${year}</td>
+                        <td>${params.startYear + year}</td>
+                        <td>${params.currentAge + year}</td>
+                        <td>${formatNumber(Math.round(balanceIPS))}</td>
+                        <td class="reinvest-column ${reinvestDeduction ? 'show' : ''}">${formatNumber(Math.round(balanceReinvest))}</td>
+                        <td>${formatNumber(Math.round(balanceFund))}</td>
+                        <td>${formatNumber(Math.round(balanceBank))}</td>
+                        <td class="extra-column ${showExtraColumns ? 'show' : ''}">${formatNumber(shielding)}</td>
+                        <td class="extra-column reinvest-column ${showExtraColumns && reinvestDeduction ? 'show' : ''}">${formatNumber(shieldingReinvest)}</td>
+                        <td class="extra-column ${showExtraColumns ? 'show' : ''}">${formatNumber(wealthTaxFund)}</td>
+                        <td class="extra-column reinvest-column ${showExtraColumns && reinvestDeduction ? 'show' : ''}">${formatNumber(wealthTaxReinvest)}</td>
+                        <td class="extra-column ${showExtraColumns ? 'show' : ''}">${formatNumber(wealthTaxBank)}</td>
+                    </tr>
+                `);
+
+                yearData.push(year);
+                ipsData.push(Math.round(balanceIPS));
+                fundData.push(Math.round(balanceFund));
+                bankData.push(Math.round(balanceBank));
+                reinvestData.push(reinvestDeduction ? Math.round(balanceReinvest) : 0);
+
+                if (isWithdrawalYear) {
+                    finalIPS = balanceIPS;
+                    finalReinvest = balanceReinvest;
+                    finalTaxFreeReinvest = taxFreeReinvest;
+                    finalFund = balanceFund;
+                    finalTaxFreeFund = taxFreeFund;
+                    finalBank = balanceBank;
+                }
+            }
+
+            let netIPS = Math.round(finalIPS * (1 - params.incomeTaxRate));
+            if (reinvestDeduction) {
+                const taxableGainReinvest = Math.max(0, finalReinvest - finalTaxFreeReinvest);
+                const taxReinvest = Math.round(taxableGainReinvest * params.stockTaxRate);
+                const netReinvest = Math.round(finalReinvest - taxReinvest);
+                netIPS += netReinvest;
+            }
+            const taxableGainFund = Math.max(0, finalFund - finalTaxFreeFund);
+            const taxFund = Math.round(taxableGainFund * params.stockTaxRate);
+            const netFund = Math.round(finalFund - taxFund);
+            const netBank = Math.round(finalBank);
+
+            document.getElementById('resultsTableHead').innerHTML = `<tr>
+                <th>År</th>
+                <th>Årstall</th>
+                <th>Alder</th>
+                <th>IPS beholdning</th>
+                <th class="reinvest-column ${reinvestDeduction ? 'show' : ''}">Reinsvestert IPS skattefradrag</th>
+                <th>Fond beholdning</th>
+                <th>Bank beholdning</th>
+                <th class="extra-column ${showExtraColumns ? 'show' : ''}">Skjerming fond</th>
+                <th class="extra-column reinvest-column ${showExtraColumns && reinvestDeduction ? 'show' : ''}">Skjerming Reinsvestert</th>
+                <th class="extra-column ${showExtraColumns ? 'show' : ''}">Formueskatt fond</th>
+                <th class="extra-column reinvest-column ${showExtraColumns && reinvestDeduction ? 'show' : ''}">Formueskatt Reinsvestert</th>
+                <th class="extra-column ${showExtraColumns ? 'show' : ''}">Formueskatt bank</th>
+            </tr>`;
+            document.getElementById('resultsTable').innerHTML = tableRows.join('');
+            document.getElementById('ipsNetMessage').innerText = `Netto IPS ved uttak:\n ${formatNumber(netIPS)} kr (etter 22% skatt${reinvestDeduction ? ' + reinsvestert fradrag' : ''})`;
+            document.getElementById('fundNetMessage').innerText = `Netto fond ved uttak:\n ${formatNumber(netFund)} kr (etter gevinstskatt)`;
+            document.getElementById('bankNetMessage').innerText = `Netto bank ved uttak:\n ${formatNumber(netBank)} kr (allerede etter skatt)`;
+            document.getElementById('savedWealthMessage').innerText = hasWealth ? `Ekstra spart i IPS vs fond pga. ingen formueskatt:\n ${formatNumber(totalWealthTaxFund)} kr` : '';
+
+            if (chart) {
+                chart.destroy();
+            }
+            const ctx = document.getElementById('savingsChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: yearData,
+                    datasets: [
+                        {
+                            label: 'IPS (inkl. reinsvestert hvis aktiv)',
+                            data: ipsData.map((val, idx) => val + reinvestData[idx]),
+                            borderColor: 'blue',
+                            fill: false
+                        },
+                        {
+                            label: 'Fond',
+                            data: fundData,
+                            borderColor: 'green',
+                            fill: false
+                        },
+                        {
+                            label: 'Bank',
+                            data: bankData,
+                            borderColor: 'red',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('toggleWealthButton').classList.add('active');
+            calculateSavings();
+        });
+    </script>
+</body>
+</html>
