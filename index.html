@@ -436,7 +436,7 @@
                     <button onclick="toggleExtraColumns()" class="toggle-button" id="toggleColumnsButton">Aktiver ekstra kolonner</button>
                 </div>
                 <button onclick="toggleWealthTax()" class="toggle-button active" id="toggleWealthButton">Deaktiver formueskatt</button>
-                <button onclick="toggleReinvest()" class="toggle-button" id="toggleReinvestButton">Deaktiver reinvestering av skattefradrag</button>
+                <button onclick="toggleReinvest()" class="toggle-button active" id="toggleReinvestButton">Deaktiver reinvestering av skattefradrag</button>
             </div>
             <!-- Results Section -->
             <div class="results-section">
@@ -663,7 +663,7 @@
         function toggleReinvest() {
             reinvestDeduction = !reinvestDeduction;
             const toggleButton = document.getElementById('toggleReinvestButton');
-            toggleButton.innerText = reinvestDeduction ? 'Deaktiver reinvestering av skattefradrag' : 'Aktiver reinvestering av skattefradrag';
+            toggleButton.innerText = reinvestDeduction ? 'Aktiver reinvestering av skattefradrag' : 'Deaktiver reinvestering av skattefradrag';
             toggleButton.classList.toggle('active', reinvestDeduction);
             document.querySelectorAll('.reinvest-column').forEach(col => col.classList.toggle('show', reinvestDeduction));
             debouncedUpdate();
