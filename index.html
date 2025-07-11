@@ -856,9 +856,9 @@
             </tr>`;
             document.getElementById('resultsTable').innerHTML = tableRows.join('');
             document.getElementById('ipsNetMessage').innerText = `Netto IPS ved uttak:\n ${formatNumber(netIPS)} kr (etter 22% skatt${reinvestDeduction ? ' + reinsvestert fradrag' : ''})`;
-            document.getElementById('fundNetMessage').innerText = `Netto fond ved uttak:\n ${formatNumber(netFund)} kr (etter gevinstskatt)`;
-            document.getElementById('bankNetMessage').innerText = `Netto bank ved uttak:\n ${formatNumber(netBank)} kr (allerede etter skatt)`;
-            document.getElementById('savedWealthMessage').innerText = hasWealth ? `Besparelse av formueskatt i IPS:\n ${formatNumber(totalWealthTaxFund)} kr` : '';
+            document.getElementById('fundNetMessage').innerText = `Netto aksjefond ved uttak:\n ${formatNumber(netFund)} kr (etter gevinstskatt)`;
+            document.getElementById('bankNetMessage').innerText = `Netto bank ved uttak:\n ${formatNumber(netBank)} kr`;
+            document.getElementById('savedWealthMessage').innerText = hasWealth ? `Formueskatt spart i IPS:\n ${formatNumber(totalWealthTaxFund)} kr` : '';
             document.getElementById('reinvestNetMessage').innerText = reinvestDeduction ? `Netto gevinst fra reinvestert skattefradrag:\n ${formatNumber(netReinvest)} kr` : '';
             document.getElementById('percentageDiffMessage').innerText = diffText;
 
