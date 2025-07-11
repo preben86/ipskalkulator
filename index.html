@@ -47,11 +47,10 @@
         }
         .message-container {
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
+            flex-wrap: wrap;
             gap: 20px;
             margin-bottom: 20px;
-            flex-wrap: wrap;
+            justify-content: space-between;
         }
         .message {
             background-color: #dbe6f0;
@@ -60,8 +59,15 @@
             text-align: center;
             font-size: 1.5rem;
             font-weight: 500;
-            flex: 1;
+            flex: 0 1 calc(33.333% - 20px);
             min-width: 200px;
+            box-sizing: border-box;
+        }
+        .percentage-message-positive {
+            background-color: #e6ffe6 !important; /* Dus grønn */
+        }
+        .percentage-message-negative {
+            background-color: #ffe6e6 !important; /* Dus rød */
         }
         .description {
             font-size: 1.4rem;
@@ -249,12 +255,6 @@
             margin-top: 20px;
             height: 400px;
         }
-        .positive-diff {
-            background-color: #d4edda; /* dus grønn */
-        }
-        .negative-diff {
-            background-color: #f8d7da; /* dus rød */
-        }
         @media (max-width: 768px) {
             .calculator {
                 padding: 20px;
@@ -284,6 +284,7 @@
             .message {
                 font-size: 1.2rem;
                 padding: 12px;
+                flex: 1 1 100%;
             }
             .description {
                 font-size: 1.2rem;
@@ -384,6 +385,13 @@
                         </div>
                     </div>
                     <div class="slider-container">
+                        <div class="slider-label">Inflasjon (%)</div>
+                        <div class="slider-input-container">
+                            <input type="range" min="0" max="10" value="2.5" step="0.1" class="slider" id="inflationRate">
+                            <div class="value"><input type="text" id="inflationRate-value" value="2,5" oninput="validateInputDecimal(this); updateSliderDecimal('inflationRate', this)" onblur="updateSliderDecimal('inflationRate', this)" onchange="updateSliderDecimal('inflationRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('inflationRate', this)"></div>
+                        </div>
+                    </div>
+                    <div class="slider-container">
                         <div class="slider-label">Skjermingsrente (%)</div>
                         <div class="slider-input-container">
                             <input type="range" min="0" max="5" value="2.4" step="0.1" class="slider" id="shieldingRate">
@@ -436,7 +444,7 @@
                     <button onclick="toggleInfo()" class="info-button" id="infoButton">Vis informasjon om kalkulatoren</button>
                     <div id="infoSection" class="info-content hidden">
                         <h2>Om IPS Sparingskalkulator</h2>
-                        <p>Denne kalkulatoren estimerer veksten av sparing i IPS og global indexfond (ASK), med hensyn til norske skatteregler, formueskatt og skjerming.</p>
+                        <p>Denne kalkulatoren estimerer veksten av sparing i IPS, global indexfond (ASK) og banksparing, med hensyn til norske skatteregler, formueskatt og skjerming. Sparingen er inflasjonsjustert hvis angitt. Ved uttaksalder vises netto verdier etter skatt.</p>
                         <h2>Forklaring på reinvestering av skattefradrag</h2>
                         <p>Når reinvestering er aktivert, beregnes skattefradraget fra IPS-innskuddet (f.eks. 22% av 15 000 kr = 3 300 kr) og investeres i en separat aksjekonto (Reinsvestert IPS skattefradrag). Denne kontoen vokser som en vanlig ASK-konto, med skjerming, mulig formueskatt, og gevinstskatt ved uttak (37,84%). Nettoverdien fra denne kontoen legges til netto IPS-verdi for å vise total fordel, da fradraget er en ekstra besparelse som kan investeres annet sted.</p>
                         <h2>Fordeler og ulemper med IPS</h2>
@@ -501,6 +509,7 @@
                             <div id="fundNetMessage" class="message"></div>
                             <div id="savedWealthMessage" class="message"></div>
                             <div id="reinvestNetMessage" class="message"></div>
+                            <div id="monthlyPayoutMessage" class="message"></div>
                         </div>
                         <div class="results-table">
                             <div class="table-scroll">
@@ -529,6 +538,7 @@
             withdrawalAge: document.getElementById('withdrawalAge'),
             annualSavings: document.getElementById('annualSavings'),
             returnRate: document.getElementById('returnRate'),
+            inflationRate: document.getElementById('inflationRate'),
             shieldingRate: document.getElementById('shieldingRate'),
             wealthTaxRate: document.getElementById('wealthTaxRate'),
             stockTaxRate: document.getElementById('stockTaxRate'),
@@ -542,6 +552,7 @@
             withdrawalAge: document.getElementById('withdrawalAge-value'),
             annualSavings: document.getElementById('annualSavings-value'),
             returnRate: document.getElementById('returnRate-value'),
+            inflationRate: document.getElementById('inflationRate-value'),
             shieldingRate: document.getElementById('shieldingRate-value'),
             wealthTaxRate: document.getElementById('wealthTaxRate-value'),
             stockTaxRate: document.getElementById('stockTaxRate-value'),
@@ -615,7 +626,7 @@
             }
             if (['annualSavings'].includes(id)) {
                 return formatNumber(Math.round(numValue));
-            } else if (['returnRate', 'wealthTaxRate', 'shieldingRate', 'stockTaxRate', 'incomeTaxRate', 'ipsDeductionRate', 'fundDiscount'].includes(id)) {
+            } else if (['returnRate', 'inflationRate', 'wealthTaxRate', 'shieldingRate', 'stockTaxRate', 'incomeTaxRate', 'ipsDeductionRate', 'fundDiscount'].includes(id)) {
                 return numValue.toFixed(2).replace('.', ',');
             }
             return formatNumber(Math.round(numValue));
@@ -657,13 +668,8 @@
             document.getElementById('tableSection').classList.toggle('hidden', showInfo);
             document.getElementById('infoButton').innerText = showInfo ? 'Vis resultattabell' : 'Vis informasjon om kalkulatoren';
             const flexContainer = document.querySelector('.flex-container');
-            if (showInfo) {
-                flexContainer.style.maxHeight = 'none';
-                flexContainer.style.overflow = 'visible';
-            } else {
-                flexContainer.style.maxHeight = 'calc(100vh - 160px)';
-                flexContainer.style.overflow = 'hidden';
-            }
+            flexContainer.style.maxHeight = 'none';
+            flexContainer.style.overflow = 'visible';
         }
 
         let yearData = [];
@@ -677,6 +683,7 @@
                 withdrawalAge: parseNumber(values.withdrawalAge.value),
                 annualSavings: parseNumber(values.annualSavings.value),
                 returnRate: parseNumber(values.returnRate.value) / 100,
+                inflationRate: parseNumber(values.inflationRate.value) / 100,
                 shieldingRate: parseNumber(values.shieldingRate.value) / 100,
                 wealthTaxRate: parseNumber(values.wealthTaxRate.value) / 100,
                 stockTaxRate: parseNumber(values.stockTaxRate.value) / 100,
@@ -727,7 +734,7 @@
                 }
                 balanceFund = Math.max(0, balanceFund - wealthTaxFund);
 
-                // Reinsvestert IPS skattefradrag (ekstra fradrag fra)
+                // Reinsvestert IPS skattefradrag (ekstra fra fradrag)
                 let shieldingReinvest = 0;
                 let wealthTaxReinvest = 0;
                 if (reinvestDeduction) {
@@ -795,13 +802,34 @@
             let diffClass = '';
             if (percentageDiff > 0) {
                 diffText = `Netto beholdning er ${percentageDiff.toFixed(2).replace('.', ',')}% høyere i IPS vs aksjesparing`;
-                diffClass = 'positive-diff';
+                diffClass = 'percentage-message-positive';
             } else if (percentageDiff < 0) {
                 diffText = `Netto beholdning er ${Math.abs(percentageDiff).toFixed(2).replace('.', ',')}% lavere i IPS vs aksjesparing.`;
-                diffClass = 'negative-diff';
+                diffClass = 'percentage-message-negative';
             } else {
                 diffText = `Netto beholdning er lik i IPS vs aksjesparing.`;
             }
+
+            // Beregn netto IPS for utbetalingsberegning
+            let ipsNetForPayout = Math.round(finalIPS * (1 - params.incomeTaxRate));
+            if (reinvestDeduction) {
+                ipsNetForPayout += netReinvest;
+            }
+
+            // Beregn utbetalingsperiode: minst 10 år, frem til 80 år
+            const payoutYears = Math.max(10, 80 - params.withdrawalAge);
+
+            // Nominell årlig utbetaling (forenklet jevn fordeling)
+            const nominalAnnual = ipsNetForPayout / payoutYears;
+
+            // Nominell månedlig utbetaling
+            const nominalMonthly = nominalAnnual / 12;
+
+            // Inflasjonsjustert månedlig (tilbakeført til dagens kroneverdi)
+            const adjustedMonthly = nominalMonthly / Math.pow(1 + params.inflationRate, years);
+
+            // Oppdater infoboks
+            document.getElementById('monthlyPayoutMessage').innerHTML = `Forventet månedlig netto utbetaling fra IPS ved pensjonsalder:<br>${formatNumber(Math.round(adjustedMonthly))} kr<br><small>(justert for inflasjon over ${years} år til dagens kroneverdi)<br>Opprinnelig: ${formatNumber(Math.round(nominalMonthly))} kr</small>`;
 
             document.getElementById('resultsTableHead').innerHTML = `<tr>
                 <th>År</th>
@@ -820,10 +848,11 @@
             document.getElementById('fundNetMessage').innerText = `Netto aksjefond ved uttak:\n ${formatNumber(netFund)} kr (etter gevinstskatt)`;
             document.getElementById('savedWealthMessage').innerText = hasWealth ? `Formueskatt spart i IPS:\n ${formatNumber(totalWealthTaxFund)} kr` : '';
             document.getElementById('reinvestNetMessage').innerText = reinvestDeduction ? `Netto gevinst fra reinvestert skattefradrag:\n ${formatNumber(netReinvest)} kr` : '';
-            document.getElementById('percentageDiffMessage').innerText = diffText;
-            document.getElementById('percentageDiffMessage').classList.remove('positive-diff', 'negative-diff');
+            const percentageDiffMessage = document.getElementById('percentageDiffMessage');
+            percentageDiffMessage.innerText = diffText;
+            percentageDiffMessage.classList.remove('percentage-message-positive', 'percentage-message-negative');
             if (diffClass) {
-                document.getElementById('percentageDiffMessage').classList.add(diffClass);
+                percentageDiffMessage.classList.add(diffClass);
             }
         }
 
