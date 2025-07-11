@@ -663,7 +663,7 @@
         function toggleReinvest() {
             reinvestDeduction = !reinvestDeduction;
             const toggleButton = document.getElementById('toggleReinvestButton');
-            toggleButton.innerText = reinvestDeduction ? 'Aktiver reinvestering av skattefradrag' : 'Deaktiver reinvestering av skattefradrag';
+            toggleButton.innerText = reinvestDeduction ? 'Deaktiver reinvestering av skattefradrag' : 'Aktiver reinvestering av skattefradrag';
             toggleButton.classList.toggle('active', reinvestDeduction);
             document.querySelectorAll('.reinvest-column').forEach(col => col.classList.toggle('show', reinvestDeduction));
             debouncedUpdate();
