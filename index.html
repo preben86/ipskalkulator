@@ -249,6 +249,12 @@
             margin-top: 20px;
             height: 400px;
         }
+        .positive-diff {
+            background-color: #d4edda; /* dus grønn */
+        }
+        .negative-diff {
+            background-color: #f8d7da; /* dus rød */
+        }
         @media (max-width: 768px) {
             .calculator {
                 padding: 20px;
@@ -368,13 +374,6 @@
                         <div class="value"><input type="text" id="returnRate-value" value="7" oninput="validateInputDecimal(this); updateSliderDecimal('returnRate', this)" onblur="updateSliderDecimal('returnRate', this)" onchange="updateSliderDecimal('returnRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('returnRate', this)"></div>
                     </div>
                 </div>
-                <div class="slider-container">
-                    <div class="slider-label">Forventet bankrente (%)</div>
-                    <div class="slider-input-container">
-                        <input type="range" min="0" max="10" value="3" step="0.1" class="slider" id="bankRate">
-                        <div class="value"><input type="text" id="bankRate-value" value="3" oninput="validateInputDecimal(this); updateSliderDecimal('bankRate', this)" onblur="updateSliderDecimal('bankRate', this)" onchange="updateSliderDecimal('bankRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('bankRate', this)"></div>
-                    </div>
-                </div>
                 <button onclick="toggleAdvancedSettings()" class="toggle-button">Vis/Skjul avanserte innstillinger</button>
                 <div id="advancedSettings" class="hidden">
                     <div class="slider-container">
@@ -382,13 +381,6 @@
                         <div class="slider-input-container">
                             <input type="range" min="2025" max="2050" value="2025" step="1" class="slider" id="startYear">
                             <div class="value"><input type="text" id="startYear-value" value="2025" oninput="validateInput(this); updateSlider('startYear', this)" onblur="updateSlider('startYear', this)" onchange="updateSlider('startYear', this)" onkeypress="if(event.key === 'Enter') updateSlider('startYear', this)"></div>
-                        </div>
-                    </div>
-                    <div class="slider-container">
-                        <div class="slider-label">Inflasjon (%)</div>
-                        <div class="slider-input-container">
-                            <input type="range" min="0" max="10" value="2" step="0.1" class="slider" id="inflationRate">
-                            <div class="value"><input type="text" id="inflationRate-value" value="2" oninput="validateInputDecimal(this); updateSliderDecimal('inflationRate', this)" onblur="updateSliderDecimal('inflationRate', this)" onchange="updateSliderDecimal('inflationRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('inflationRate', this)"></div>
                         </div>
                     </div>
                     <div class="slider-container">
@@ -444,7 +436,7 @@
                     <button onclick="toggleInfo()" class="info-button" id="infoButton">Vis informasjon om kalkulatoren</button>
                     <div id="infoSection" class="info-content hidden">
                         <h2>Om IPS Sparingskalkulator</h2>
-                        <p>Denne kalkulatoren estimerer veksten av sparing i IPS, global indexfond (ASK) og banksparing, med hensyn til norske skatteregler, formueskatt og skjerming. Sparingen er inflasjonsjustert hvis angitt. Ved uttaksalder vises netto verdier etter skatt.</p>
+                        <p>Denne kalkulatoren estimerer veksten av sparing i IPS og global indexfond (ASK), med hensyn til norske skatteregler, formueskatt og skjerming.</p>
                         <h2>Forklaring på reinvestering av skattefradrag</h2>
                         <p>Når reinvestering er aktivert, beregnes skattefradraget fra IPS-innskuddet (f.eks. 22% av 15 000 kr = 3 300 kr) og investeres i en separat aksjekonto (Reinsvestert IPS skattefradrag). Denne kontoen vokser som en vanlig ASK-konto, med skjerming, mulig formueskatt, og gevinstskatt ved uttak (37,84%). Nettoverdien fra denne kontoen legges til netto IPS-verdi for å vise total fordel, da fradraget er en ekstra besparelse som kan investeres annet sted.</p>
                         <h2>Fordeler og ulemper med IPS</h2>
@@ -486,11 +478,6 @@
                                 <td>Beholdning(t) = Beholdning(t-1) × (1 + Avkastning) + Innskudd_fond<br>Skjerming = Basis(t-1) × Skjermingsrente, lagt til basis.<br>Formueskatt(t) = (Beholdning × (1 - Rabatt)) × Formueskatt hvis aktivert.</td>
                             </tr>
                             <tr>
-                                <td>Bank beholdning</td>
-                                <td>Vekst av banksparing.</td>
-                                <td>Beholdning(t) = Beholdning(t-1) + Innskudd_bank + (Beholdning(t-1) × Bankrente × (1 - Rentetskatt))<br>Formueskatt(t) = Beholdning × Formueskatt hvis aktivert.</td>
-                            </tr>
-                            <tr>
                                 <td>Reinsvestert IPS skattefradrag</td>
                                 <td>Ekstra fond fra reinvestert fradrag (hvis aktivert).</td>
                                 <td>Lignende fond, men innskudd = Skattefradrag fra IPS-innskudd (Innskudd_IPS × Skattefradrag %).</td>
@@ -498,7 +485,7 @@
                             <tr>
                                 <td>Netto ved uttak</td>
                                 <td>Netto etter skatt ved uttaksalder.</td>
-                                <td>IPS: (Beholdning × (1 - 0.22)) + (Reinsvestert IPS skattefradrag netto etter gevinstskatt hvis aktivert)<br>Fond: Beholdning - ((Beholdning - Basis) × Aksjeskatt)<br>Bank: Beholdning (allerede etter skatt).</td>
+                                <td>IPS: (Beholdning × (1 - 0.22)) + (Reinsvestert IPS skattefradrag netto etter gevinstskatt hvis aktivert)<br>Fond: Beholdning - ((Beholdning - Basis) × Aksjeskatt)</td>
                             </tr>
                             <tr>
                                 <td>Reinvest skattefradrag</td>
@@ -512,7 +499,6 @@
                             <div id="percentageDiffMessage" class="message"></div>
                             <div id="ipsNetMessage" class="message"></div>
                             <div id="fundNetMessage" class="message"></div>
-                            <div id="bankNetMessage" class="message"></div>
                             <div id="savedWealthMessage" class="message"></div>
                             <div id="reinvestNetMessage" class="message"></div>
                         </div>
@@ -543,8 +529,6 @@
             withdrawalAge: document.getElementById('withdrawalAge'),
             annualSavings: document.getElementById('annualSavings'),
             returnRate: document.getElementById('returnRate'),
-            bankRate: document.getElementById('bankRate'),
-            inflationRate: document.getElementById('inflationRate'),
             shieldingRate: document.getElementById('shieldingRate'),
             wealthTaxRate: document.getElementById('wealthTaxRate'),
             stockTaxRate: document.getElementById('stockTaxRate'),
@@ -558,8 +542,6 @@
             withdrawalAge: document.getElementById('withdrawalAge-value'),
             annualSavings: document.getElementById('annualSavings-value'),
             returnRate: document.getElementById('returnRate-value'),
-            bankRate: document.getElementById('bankRate-value'),
-            inflationRate: document.getElementById('inflationRate-value'),
             shieldingRate: document.getElementById('shieldingRate-value'),
             wealthTaxRate: document.getElementById('wealthTaxRate-value'),
             stockTaxRate: document.getElementById('stockTaxRate-value'),
@@ -633,7 +615,7 @@
             }
             if (['annualSavings'].includes(id)) {
                 return formatNumber(Math.round(numValue));
-            } else if (['returnRate', 'bankRate', 'inflationRate', 'wealthTaxRate', 'shieldingRate', 'stockTaxRate', 'incomeTaxRate', 'ipsDeductionRate', 'fundDiscount'].includes(id)) {
+            } else if (['returnRate', 'wealthTaxRate', 'shieldingRate', 'stockTaxRate', 'incomeTaxRate', 'ipsDeductionRate', 'fundDiscount'].includes(id)) {
                 return numValue.toFixed(2).replace('.', ',');
             }
             return formatNumber(Math.round(numValue));
@@ -687,7 +669,6 @@
         let yearData = [];
         let ipsData = [];
         let fundData = [];
-        let bankData = [];
         let reinvestData = [];
 
         function calculateSavings() {
@@ -696,8 +677,6 @@
                 withdrawalAge: parseNumber(values.withdrawalAge.value),
                 annualSavings: parseNumber(values.annualSavings.value),
                 returnRate: parseNumber(values.returnRate.value) / 100,
-                bankRate: parseNumber(values.bankRate.value) / 100,
-                inflationRate: parseNumber(values.inflationRate.value) / 100,
                 shieldingRate: parseNumber(values.shieldingRate.value) / 100,
                 wealthTaxRate: parseNumber(values.wealthTaxRate.value) / 100,
                 stockTaxRate: parseNumber(values.stockTaxRate.value) / 100,
@@ -713,18 +692,16 @@
             let balanceIPS = 0;
             let balanceFund = 0;
             let taxFreeFund = 0;
-            let balanceBank = 0;
             let balanceReinvest = 0;
             let taxFreeReinvest = 0;
             const tableRows = [];
-            let finalIPS = 0, finalFund = 0, finalBank = 0, finalTaxFreeFund = 0;
+            let finalIPS = 0, finalFund = 0, finalTaxFreeFund = 0;
             let finalReinvest = 0, finalTaxFreeReinvest = 0;
             let totalWealthTaxFund = 0;
 
             yearData = [];
             ipsData = [];
             fundData = [];
-            bankData = [];
             reinvestData = [];
 
             for (let year = 0; year <= years; year++) {
@@ -750,19 +727,7 @@
                 }
                 balanceFund = Math.max(0, balanceFund - wealthTaxFund);
 
-                // Bank
-                balanceBank += contribOther;
-                const interest = Math.round(balanceBank * params.bankRate);
-                const taxInterest = Math.round(interest * params.incomeTaxRate);
-                balanceBank += interest - taxInterest;
-                let wealthTaxBank = 0;
-                if (hasWealth) {
-                    const taxableBank = balanceBank;
-                    wealthTaxBank = Math.round(taxableBank * params.wealthTaxRate);
-                }
-                balanceBank = Math.max(0, balanceBank - wealthTaxBank);
-
-                // Reinsvestert IPS skattefradrag (ekstra fra fradrag)
+                // Reinsvestert IPS skattefradrag (ekstra fradrag fra)
                 let shieldingReinvest = 0;
                 let wealthTaxReinvest = 0;
                 if (reinvestDeduction) {
@@ -789,19 +754,16 @@
                         <td>${formatNumber(Math.round(balanceIPS))}</td>
                         <td class="reinvest-column ${reinvestDeduction ? 'show' : ''}">${formatNumber(Math.round(balanceReinvest))}</td>
                         <td>${formatNumber(Math.round(balanceFund))}</td>
-                        <td>${formatNumber(Math.round(balanceBank))}</td>
                         <td class="extra-column ${showExtraColumns ? 'show' : ''}">${formatNumber(shielding)}</td>
                         <td class="extra-column reinvest-column ${showExtraColumns && reinvestDeduction ? 'show' : ''}">${formatNumber(shieldingReinvest)}</td>
                         <td class="extra-column ${showExtraColumns ? 'show' : ''}">${formatNumber(wealthTaxFund)}</td>
                         <td class="extra-column reinvest-column ${showExtraColumns && reinvestDeduction ? 'show' : ''}">${formatNumber(wealthTaxReinvest)}</td>
-                        <td class="extra-column ${showExtraColumns ? 'show' : ''}">${formatNumber(wealthTaxBank)}</td>
                     </tr>
                 `);
 
                 yearData.push(year);
                 ipsData.push(Math.round(balanceIPS));
                 fundData.push(Math.round(balanceFund));
-                bankData.push(Math.round(balanceBank));
                 reinvestData.push(reinvestDeduction ? Math.round(balanceReinvest) : 0);
 
                 if (isWithdrawalYear) {
@@ -810,7 +772,6 @@
                     finalTaxFreeReinvest = taxFreeReinvest;
                     finalFund = balanceFund;
                     finalTaxFreeFund = taxFreeFund;
-                    finalBank = balanceBank;
                 }
             }
 
@@ -825,17 +786,19 @@
             const taxableGainFund = Math.max(0, finalFund - finalTaxFreeFund);
             const taxFund = Math.round(taxableGainFund * params.stockTaxRate);
             const netFund = Math.round(finalFund - taxFund);
-            const netBank = Math.round(finalBank);
 
             let percentageDiff = 0;
             if (netFund !== 0) {
                 percentageDiff = ((netIPS - netFund) / netFund) * 100;
             }
             let diffText = '';
+            let diffClass = '';
             if (percentageDiff > 0) {
                 diffText = `Netto beholdning er ${percentageDiff.toFixed(2).replace('.', ',')}% høyere i IPS vs aksjesparing`;
+                diffClass = 'positive-diff';
             } else if (percentageDiff < 0) {
                 diffText = `Netto beholdning er ${Math.abs(percentageDiff).toFixed(2).replace('.', ',')}% lavere i IPS vs aksjesparing.`;
+                diffClass = 'negative-diff';
             } else {
                 diffText = `Netto beholdning er lik i IPS vs aksjesparing.`;
             }
@@ -847,21 +810,21 @@
                 <th>IPS beholdning</th>
                 <th class="reinvest-column ${reinvestDeduction ? 'show' : ''}">Reinsvestert IPS skattefradrag</th>
                 <th>Fond beholdning</th>
-                <th>Bank beholdning</th>
                 <th class="extra-column ${showExtraColumns ? 'show' : ''}">Skjerming fond</th>
                 <th class="extra-column reinvest-column ${showExtraColumns && reinvestDeduction ? 'show' : ''}">Skjerming Reinsvestert</th>
                 <th class="extra-column ${showExtraColumns ? 'show' : ''}">Formueskatt fond</th>
                 <th class="extra-column reinvest-column ${showExtraColumns && reinvestDeduction ? 'show' : ''}">Formueskatt Reinsvestert</th>
-                <th class="extra-column ${showExtraColumns ? 'show' : ''}">Formueskatt bank</th>
             </tr>`;
             document.getElementById('resultsTable').innerHTML = tableRows.join('');
             document.getElementById('ipsNetMessage').innerText = `Netto IPS ved uttak:\n ${formatNumber(netIPS)} kr (etter 22% skatt${reinvestDeduction ? ' + reinsvestert fradrag' : ''})`;
             document.getElementById('fundNetMessage').innerText = `Netto aksjefond ved uttak:\n ${formatNumber(netFund)} kr (etter gevinstskatt)`;
-            document.getElementById('bankNetMessage').innerText = `Netto bank ved uttak:\n ${formatNumber(netBank)} kr`;
             document.getElementById('savedWealthMessage').innerText = hasWealth ? `Formueskatt spart i IPS:\n ${formatNumber(totalWealthTaxFund)} kr` : '';
             document.getElementById('reinvestNetMessage').innerText = reinvestDeduction ? `Netto gevinst fra reinvestert skattefradrag:\n ${formatNumber(netReinvest)} kr` : '';
             document.getElementById('percentageDiffMessage').innerText = diffText;
-
+            document.getElementById('percentageDiffMessage').classList.remove('positive-diff', 'negative-diff');
+            if (diffClass) {
+                document.getElementById('percentageDiffMessage').classList.add(diffClass);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
