@@ -433,10 +433,10 @@
                             <div class="value"><input type="text" id="fundDiscount-value" value="20" oninput="validateInputDecimal(this); updateSliderDecimal('fundDiscount', this)" onblur="updateSliderDecimal('fundDiscount', this)" onchange="updateSliderDecimal('fundDiscount', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('fundDiscount', this)"></div>
                         </div>
                     </div>
+                    <button onclick="toggleExtraColumns()" class="toggle-button" id="toggleColumnsButton">Aktiver ekstra kolonner</button>
                 </div>
                 <button onclick="toggleWealthTax()" class="toggle-button active" id="toggleWealthButton">Deaktiver formueskatt</button>
-                <button onclick="toggleReinvest()" class="toggle-button active" id="toggleReinvestButton">Deaktiver reinvestering av skattefradrag</button>
-                <button onclick="toggleExtraColumns()" class="toggle-button" id="toggleColumnsButton">Aktiver ekstra kolonner</button>
+                <button onclick="toggleReinvest()" class="toggle-button" id="toggleReinvestButton">Deaktiver reinvestering av skattefradrag</button>
             </div>
             <!-- Results Section -->
             <div class="results-section">
@@ -445,19 +445,19 @@
                     <div id="infoSection" class="info-content hidden">
                         <h2>Om IPS Sparingskalkulator</h2>
                         <p>Denne kalkulatoren estimerer veksten av sparing i IPS, global indexfond (ASK) og banksparing, med hensyn til norske skatteregler, formueskatt og skjerming. Sparingen er inflasjonsjustert hvis angitt. Ved uttaksalder vises netto verdier etter skatt.</p>
+                        <h2>Forklaring på reinvestering av skattefradrag</h2>
+                        <p>Når reinvestering er aktivert, beregnes skattefradraget fra IPS-innskuddet (f.eks. 22% av 15 000 kr = 3 300 kr) og investeres i en separat aksjekonto (Reinsvestert IPS skattefradrag). Denne kontoen vokser som en vanlig ASK-konto, med skjerming, mulig formueskatt, og gevinstskatt ved uttak (37,84%). Nettoverdien fra denne kontoen legges til netto IPS-verdi for å vise total fordel, da fradraget er en ekstra besparelse som kan investeres annet sted.</p>
                         <h2>Fordeler og ulemper med IPS</h2>
                         <h3>Fordeler:</h3>
                         <ul>
                             <li>Skattefradrag på innskudd (22% i 2025, maks 3 300 kr for 15 000 kr innskudd).</li>
-                            <li>Fritak for formueskatt (opptil 0,8% årlig etter rabatt).</li>
+                            <li>Fritak for formueskatt i IPS</li>
                             <li>Lavere skatt på aksjeavkastning (22% vs 37,84% i fond/ASK).</li>
                             <li>Potensial for 15–50% høyere sparesaldo etter skatt.</li>
                         </ul>
                         <h3>Ulemper:</h3>
                         <ul>
                             <li>Midlene er bundet til 62 år, med uttak over minst 10 år til 80 år.</li>
-                            <li>Ingen skjermingsfradrag for aksjer og aksjefond.</li>
-                            <li>Ved opphold på sykehjem kan opptil 85% av uttak kreves til egenbetaling.</li>
                         </ul>
                         <h2>Hvordan bruke kalkulatoren</h2>
                         <ul>
@@ -506,23 +506,15 @@
                                 <td>Skattefradrag investeres i ekstra fond (Reinsvestert IPS skattefradrag) og legges til IPS-netto.</td>
                             </tr>
                         </table>
-                        <h2>Forklaring på reinvestering av skattefradrag</h2>
-                        <p>Når reinvestering er aktivert, beregnes skattefradraget fra IPS-innskuddet (f.eks. 22% av 15 000 kr = 3 300 kr) og investeres i en separat aksjekonto (Reinsvestert IPS skattefradrag). Denne kontoen vokser som en vanlig ASK-konto, med skjerming, mulig formueskatt, og gevinstskatt ved uttak (37,84%). Nettoverdien fra denne kontoen legges til netto IPS-verdi for å vise total fordel, da fradraget er en ekstra besparelse som kan investeres annet sted.</p>
-                        <button onclick="toggleChart()" class="toggle-button" id="chartButton">Vis graf</button>
-                        <div id="chartSection" class="hidden">
-                            <div class="chart-container">
-                                <canvas id="savingsChart"></canvas>
-                            </div>
-                        </div>
                     </div>
                     <div id="tableSection">
                         <div class="message-container">
+                            <div id="percentageDiffMessage" class="message"></div>
                             <div id="ipsNetMessage" class="message"></div>
                             <div id="fundNetMessage" class="message"></div>
                             <div id="bankNetMessage" class="message"></div>
                             <div id="savedWealthMessage" class="message"></div>
                             <div id="reinvestNetMessage" class="message"></div>
-                            <div id="percentageDiffMessage" class="message"></div>
                         </div>
                         <div class="results-table">
                             <div class="table-scroll">
@@ -672,7 +664,7 @@
             reinvestDeduction = !reinvestDeduction;
             const toggleButton = document.getElementById('toggleReinvestButton');
             toggleButton.innerText = reinvestDeduction ? 'Deaktiver reinvestering av skattefradrag' : 'Aktiver reinvestering av skattefradrag';
-            toggleButton.classList.toggle('active', !reinvestDeduction);
+            toggleButton.classList.toggle('active', reinvestDeduction);
             document.querySelectorAll('.reinvest-column').forEach(col => col.classList.toggle('show', reinvestDeduction));
             debouncedUpdate();
         }
@@ -689,15 +681,6 @@
             } else {
                 flexContainer.style.maxHeight = 'calc(100vh - 160px)';
                 flexContainer.style.overflow = 'hidden';
-            }
-        }
-
-        function toggleChart() {
-            showChart = !showChart;
-            document.getElementById('chartSection').classList.toggle('hidden', !showChart);
-            document.getElementById('chartButton').innerText = showChart ? 'Skjul graf' : 'Vis graf';
-            if (showChart && chart) {
-                chart.update();
             }
         }
 
@@ -879,44 +862,6 @@
             document.getElementById('reinvestNetMessage').innerText = reinvestDeduction ? `Netto gevinst fra reinvestert skattefradrag:\n ${formatNumber(netReinvest)} kr` : '';
             document.getElementById('percentageDiffMessage').innerText = diffText;
 
-            if (chart) {
-                chart.destroy();
-            }
-            const ctx = document.getElementById('savingsChart').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: yearData,
-                    datasets: [
-                        {
-                            label: 'IPS (inkl. reinsvestert hvis aktiv)',
-                            data: ipsData.map((val, idx) => val + reinvestData[idx]),
-                            borderColor: 'blue',
-                            fill: false
-                        },
-                        {
-                            label: 'Fond',
-                            data: fundData,
-                            borderColor: 'green',
-                            fill: false
-                        },
-                        {
-                            label: 'Bank',
-                            data: bankData,
-                            borderColor: 'red',
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
