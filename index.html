@@ -342,7 +342,7 @@
                     <div class="slider-label">Din alder</div>
                     <div class="slider-input-container">
                         <input type="range" min="18" max="61" value="39" step="1" class="slider" id="currentAge">
-                        <div class="value"><input type="text" id="currentAge-value" value="40" oninput="validateInput(this); updateSlider('currentAge', this)" onblur="updateSlider('currentAge', this)" onchange="updateSlider('currentAge', this)" onkeypress="if(event.key === 'Enter') updateSlider('currentAge', this)"></div>
+                        <div class="value"><input type="text" id="currentAge-value" value="39" oninput="validateInput(this); updateSlider('currentAge', this)" onblur="updateSlider('currentAge', this)" onchange="updateSlider('currentAge', this)" onkeypress="if(event.key === 'Enter') updateSlider('currentAge', this)"></div>
                     </div>
                 </div>
                 <div class="slider-container">
@@ -363,7 +363,7 @@
                     <div class="slider-label">Forventet avkastning aksjer (%)</div>
                     <div class="slider-input-container">
                         <input type="range" min="0" max="20" value="7" step="0.1" class="slider" id="returnRate">
-                        <div class="value"><input type="text" id="returnRate-value" value="5,5" oninput="validateInputDecimal(this); updateSliderDecimal('returnRate', this)" onblur="updateSliderDecimal('returnRate', this)" onchange="updateSliderDecimal('returnRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('returnRate', this)"></div>
+                        <div class="value"><input type="text" id="returnRate-value" value="7" oninput="validateInputDecimal(this); updateSliderDecimal('returnRate', this)" onblur="updateSliderDecimal('returnRate', this)" onchange="updateSliderDecimal('returnRate', this)" onkeypress="if(event.key === 'Enter') updateSliderDecimal('returnRate', this)"></div>
                     </div>
                 </div>
                 <div class="slider-container">
@@ -433,7 +433,7 @@
                     </div>
                 </div>
                 <button onclick="toggleWealthTax()" class="toggle-button active" id="toggleWealthButton">Deaktiver formueskatt</button>
-                <button onclick="toggleReinvest()" class="toggle-button active" id="toggleReinvestButton">Aktiver reinvestering av skattefradrag</button>
+                <button onclick="toggleReinvest()" class="toggle-button active" id="toggleReinvestButton">Deaktiver reinvestering av skattefradrag</button>
                 <button onclick="toggleExtraColumns()" class="toggle-button" id="toggleColumnsButton">Aktiver ekstra kolonner</button>
             </div>
             <!-- Results Section -->
@@ -667,7 +667,7 @@
         function toggleReinvest() {
             reinvestDeduction = !reinvestDeduction;
             const toggleButton = document.getElementById('toggleReinvestButton');
-            toggleButton.innerText = reinvestDeduction ? 'Deaktiver reinvestering av skattefradrag' : 'Aktiver reinvestering av skattefradrag';
+            toggleButton.innerText = reinvestDeduction ? 'Aktiver reinvestering av skattefradrag' : 'Deaktiver reinvestering av skattefradrag';
             toggleButton.classList.toggle('active', reinvestDeduction);
             document.querySelectorAll('.reinvest-column').forEach(col => col.classList.toggle('show', reinvestDeduction));
             debouncedUpdate();
